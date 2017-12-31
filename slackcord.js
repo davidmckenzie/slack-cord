@@ -49,9 +49,13 @@ rtm.on(RTM_EVENTS.MESSAGE, (message) => {
     if (message.subtype) {
         if (message.subtype == 'file_share') {
             logger.info(`Ignoring file upload: ${message.text}`);
-        } else if (message.subtype == 'message_replied' || message.subtype == 'bot_message' || message.subtype == 'reply_broadcast' || message.subtype == 'me_message') {
+        } else if (message.subtype == 'bot_message' || message.subtype == 'me_message') {
             logger.info(`#${obj.name}: ${message.text}`);
-            post_data.content = `**#${obj.name}**: ${message.text}`;
+            if (obj.everyone == true) {
+                post_data.content = `@everyone **#${obj.name}**: ${message.text}`;
+            } else {
+                post_data.content = `**#${obj.name}**: ${message.text}`;
+            }
             var url = obj.webhook;
             var options = {
               method: 'post',
@@ -73,7 +77,11 @@ rtm.on(RTM_EVENTS.MESSAGE, (message) => {
         }
     } else if (message.text && message.text != '') {
         logger.info(`#${obj.name}: ${message.text}`);
-        post_data.content = `**#${obj.name}**: ${message.text}`;
+        if (obj.everyone == true) {
+            post_data.content = `@everyone **#${obj.name}**: ${message.text}`;
+        } else {
+            post_data.content = `**#${obj.name}**: ${message.text}`;
+        }
         var url = obj.webhook;
         var options = {
           method: 'post',
