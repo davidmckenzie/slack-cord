@@ -50,11 +50,17 @@ rtm.on(RTM_EVENTS.MESSAGE, (message) => {
         if (message.subtype == 'file_share') {
             logger.info(`Ignoring file upload: ${message.text}`);
         } else if (message.subtype == 'bot_message' || message.subtype == 'me_message') {
+            var textParse;
+            if (message.text) {
+                textParse = message.text.replace(/<!everyone>/gi, "@everyone");
+            } else {
+                textParse = 'undefined';
+            }
             logger.info(`#${obj.name}: ${message.text}`);
             if (obj.everyone == true) {
-                post_data.content = `@everyone **#${obj.name}**: ${message.text}`;
+                post_data.content = `@everyone **#${obj.name}**: ${textParse}`;
             } else {
-                post_data.content = `**#${obj.name}**: ${message.text}`;
+                post_data.content = `**#${obj.name}**: ${textParse}`;
             }
             var url = obj.webhook;
             var options = {
@@ -76,11 +82,12 @@ rtm.on(RTM_EVENTS.MESSAGE, (message) => {
             logger.info(`Ignoring message subtype: ${message.subtype}, text ${message.text}`);
         }
     } else if (message.text && message.text != '') {
+        var textParse = message.text.replace(/<!everyone>/gi, "@everyone");
         logger.info(`#${obj.name}: ${message.text}`);
         if (obj.everyone == true) {
-            post_data.content = `@everyone **#${obj.name}**: ${message.text}`;
+            post_data.content = `@everyone **#${obj.name}**: ${textParse}`;
         } else {
-            post_data.content = `**#${obj.name}**: ${message.text}`;
+            post_data.content = `**#${obj.name}**: ${textParse}`;
         }
         var url = obj.webhook;
         var options = {
