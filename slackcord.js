@@ -22,10 +22,19 @@ const web = new WebClient(token);
 
 let groupListPromise = web.groups.list();
 groupListPromise.then((res) => {
-    logger.debug(res);
-//    res.groups.forEach(function(v){
-//
-//    });
+    res.groups.forEach(function(v){
+    logger.debug(`ID: ${v.id} Name: ${v.name}`);
+    });
+    for (i in channels) {
+        var found = _.find(res.groups, function(obj) { return obj.name === channels[i].name});
+        if (found) {
+            channels[i].id = found.id;
+            logger.info(`Found group ${channels[i].name} with ID ${channels[i].id}`);
+            chanArr.push(channels[i].id);
+        } else {
+            logger.warn(`Couldn't find group ${channels[i].name}`);
+        }
+    }
 })
 
 // Load the current channels list asynchrously
