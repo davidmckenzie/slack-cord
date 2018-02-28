@@ -20,6 +20,14 @@ const rtm = new RtmClient(token, {
 // Need a web client to find a channel where the app can post a message
 const web = new WebClient(token);
 
+let groupListPromise = web.groups.list();
+groupListPromise.then((res) => {
+    logger.debug(res);
+//    res.groups.forEach(function(v){
+//
+//    });
+})
+
 // Load the current channels list asynchrously
 let channelListPromise = web.channels.list();
 
