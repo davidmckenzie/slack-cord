@@ -5,6 +5,7 @@ var logger = require('winston');
     logger.info('Initializing bot');
 var request = require("request");
 
+
 const { RtmClient, CLIENT_EVENTS, RTM_EVENTS, WebClient } = require('@slack/client');
 // An access token (from your Slack app or custom integration - usually xoxb)
 const token = auth.token;
@@ -65,8 +66,45 @@ rtm.on(RTM_EVENTS.MESSAGE, (message) => {
         post_data.username = obj.name;
     if (message.subtype) {
         if (message.subtype == 'file_share') {
-            logger.info(`Ignoring file upload: ${message.text}`);
+            // download and attach an image
+            logger.info(`Sendning file upload: ${message.text}`);
+            var fileUrl = message.file.url_private;
+            var fileName;
+            if (message.file.name) {
+                fileName = message.file.name;
+            } else {
+                fileName = 'upload.'+message.file.filetype;
+            }
+            var mimeType = message.file.mimetype;
+
+            request({
+                'url': fileUrl,
+                'method': 'GET',
+                'encoding': null,
+                headers:{
+                    Authorization: ` Bearer ${token}`
+                }
+              }, function(err, res, body) {
+                if(err) console.log(err);
+                var contentType = res.headers['content-type'];
+                var req = request.post(obj.webhook, function (err, resp, body) {
+                    if (err) {
+                        console.log('Error posting webhook!');
+                        console.log(err);
+                    } else {
+                        console.log('webhook posted\n');
+                    }
+                });
+                var form = req.form();
+                    form.append('username', obj.name);
+                    //form.append('content', '@everyone');
+                    form.append('file', body, {
+                        filename: fileName,
+                        contentType: mimeType
+                    });
+              });
         } else if (message.subtype == 'bot_message' || message.subtype == 'me_message') {
+            // send text post
             var textParse;
             if (message.text) {
                 textParse = message.text.replace(/<!everyone>/gi, "@everyone");
